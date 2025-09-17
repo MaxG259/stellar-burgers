@@ -1,5 +1,6 @@
 import { useSelector } from '../../services/store';
 import { Navigate, useLocation } from 'react-router-dom';
+import { Preloader } from '@ui'; // новое
 
 type ProtectedRouteProps = {
   onlyUnAuth?: boolean;
@@ -10,8 +11,15 @@ export const ProtectedRoute = ({
   onlyUnAuth = false,
   children
 }: ProtectedRouteProps) => {
+  const user = useSelector((state) => state.user.user); // новое
   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
+  const isAuthChecked = useSelector((state) => state.user.isAuthChecked); // новое
   const location = useLocation();
+
+  // Ждем завершения проверки авторизации // новое
+  if (!isAuthChecked) {
+    return <Preloader />;
+  }
 
   if (onlyUnAuth && isAuthenticated) {
     // Если роут только для неавторизованных, а пользователь авторизован

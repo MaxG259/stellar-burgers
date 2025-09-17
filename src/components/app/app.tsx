@@ -21,6 +21,9 @@ import '../../index.css';
 import styles from './app.module.css';
 import { AppHeader } from '@components';
 import { ProtectedRoute } from '../protected-route/protected-route';
+import { useEffect } from 'react';
+import { useDispatch } from '../../services/store';
+import { checkUserAuth } from '../../services/slices/userSlice';
 
 // Модальные компоненты
 const IngredientModal = () => {
@@ -44,6 +47,12 @@ const OrderModal = () => {
 const App = () => {
   const location = useLocation();
   const background = location.state?.background;
+  const dispatch = useDispatch();
+
+  // Проверяем авторизацию при загрузке
+  useEffect(() => {
+    dispatch(checkUserAuth());
+  }, [dispatch]);
 
   return (
     <div className={styles.app}>

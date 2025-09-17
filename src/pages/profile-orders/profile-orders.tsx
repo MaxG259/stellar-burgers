@@ -8,6 +8,7 @@ export const ProfileOrders: FC = () => {
   const dispatch = useDispatch();
   const orders = useSelector((state) => state.user.orders || []);
   const ordersLoading = useSelector((state) => state.user.ordersLoading);
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
 
   useEffect(() => {
     dispatch(getUserOrders());

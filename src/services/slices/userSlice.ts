@@ -5,13 +5,15 @@ import {
   registerUserApi,
   getOrdersApi,
   updateUserApi,
-  logoutApi
+  logoutApi,
+  getUserApi
 } from '@api';
-import { setCookie, deleteCookie } from '../../utils/cookie';
+import { setCookie, deleteCookie, getCookie } from '../../utils/cookie';
 
 interface UserState {
   user: TUser | null;
   isAuthenticated: boolean;
+  isAuthChecked: boolean; // новое
   isLoading: boolean;
   error: string | null;
   orders: TOrder[] | null;
@@ -21,6 +23,7 @@ interface UserState {
 const initialState: UserState = {
   user: null,
   isAuthenticated: false,
+  isAuthChecked: false, // новое
   isLoading: false,
   error: null,
   orders: null,
@@ -62,11 +65,29 @@ const updateUser = createAsyncThunk(
   }
 );
 
-const logoutUser = createAsyncThunk('user/logoutUser', async () => {
+/* const logoutUser = createAsyncThunk('user/logoutUser', async () => {
   await logoutApi();
   // Очищаем токены
   localStorage.removeItem('refreshToken');
   deleteCookie('accessToken');
+}); */
+
+const logoutUser = createAsyncThunk('user/logoutUser', async () => {
+  await logoutApi();
+  return {};
+});
+
+const checkUserAuth = createAsyncThunk('user/checkUserAuth', async () => {
+  const refreshToken = localStorage.getItem('refreshToken');
+  const accessToken = getCookie('accessToken');
+
+  if (!refreshToken || !accessToken) {
+    throw new Error('No tokens');
+  }
+
+  // Проверяем токен через API
+  const data = await getUserApi();
+  return data.user;
 });
 
 const userSlice = createSlice({
@@ -119,15 +140,40 @@ const userSlice = createSlice({
         state.error = action.error.message || 'Ошибка обновления';
       })
       .addCase(logoutUser.fulfilled, (state) => {
-        // Полностью очищаем состояние пользователя
+        // Очищаем токены
+        localStorage.removeItem('refreshToken');
+        deleteCookie('accessToken');
+        // Очищаем состояние
         state.user = null;
         state.isAuthenticated = false;
         state.orders = null;
         state.error = null;
+      })
+      .addCase(checkUserAuth.fulfilled, (state, action) => {
+        state.isAuthenticated = true;
+        state.user = action.payload;
+        state.isLoading = false;
+        state.isAuthChecked = true; // новое
+      })
+      .addCase(checkUserAuth.rejected, (state) => {
+        // Токены невалидны - очищаем
+        localStorage.removeItem('refreshToken');
+        deleteCookie('accessToken');
+        state.isAuthenticated = false;
+        state.user = null;
+        state.isLoading = false;
+        state.isAuthChecked = true; // новое
       });
   }
 });
 
 export const {} = userSlice.actions;
 export default userSlice.reducer;
-export { loginUser, registerUser, getUserOrders, updateUser, logoutUser };
+export {
+  loginUser,
+  registerUser,
+  getUserOrders,
+  updateUser,
+  logoutUser,
+  checkUserAuth
+};
