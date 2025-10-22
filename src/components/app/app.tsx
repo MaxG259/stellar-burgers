@@ -22,9 +22,10 @@ import styles from './app.module.css';
 import { AppHeader } from '@components';
 import { ProtectedRoute } from '../protected-route/protected-route';
 import { useEffect } from 'react';
-import { useDispatch } from '../../services/store';
+import { useDispatch, useSelector } from '../../services/store';
 import { checkUserAuth } from '../../services/slices/userSlice';
 import { fetchIngredients } from '../../services/slices/ingredientsSlice';
+import { Preloader } from '../ui/preloader/preloader';
 
 // Модальные компоненты
 const IngredientModal = () => {
@@ -49,12 +50,17 @@ const App = () => {
   const location = useLocation();
   const background = location.state?.background;
   const dispatch = useDispatch();
+  const ingredients = useSelector((state) => state.ingredients.ingredients);
 
   // Проверяем авторизацию при загрузке
   useEffect(() => {
     dispatch(fetchIngredients());
     dispatch(checkUserAuth());
   }, [dispatch]);
+
+  /* if (!ingredients.length) {
+    return <Preloader />;
+  } */
 
   return (
     <div className={styles.app}>
