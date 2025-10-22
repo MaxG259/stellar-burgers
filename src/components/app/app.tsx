@@ -24,6 +24,7 @@ import { ProtectedRoute } from '../protected-route/protected-route';
 import { useEffect } from 'react';
 import { useDispatch } from '../../services/store';
 import { checkUserAuth } from '../../services/slices/userSlice';
+import { fetchIngredients } from '../../services/slices/ingredientsSlice';
 
 // Модальные компоненты
 const IngredientModal = () => {
@@ -51,6 +52,7 @@ const App = () => {
 
   // Проверяем авторизацию при загрузке
   useEffect(() => {
+    dispatch(fetchIngredients());
     dispatch(checkUserAuth());
   }, [dispatch]);
 
