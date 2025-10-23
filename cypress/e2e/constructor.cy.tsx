@@ -19,7 +19,10 @@ describe('Constructor tests', () => {
     });
   
     // Проверяем что булка появилась в конструкторе (текст "Выберите булки" исчез)
+    // Проверяем что исчезла надпись "Выберите булки"
     cy.get('[data-testid="constructor-zone"]').should('not.contain', 'Выберите булки');
+    // И проверяем что появился конкретный ингредиент
+    cy.get('[data-testid="constructor-zone"]').should('contain', 'Краторная булка N-200i');
     
     // Находим начинку (не булку) и добавляем
     cy.get('[data-testid="ingredient-item"]').eq(2).within(() => {
@@ -28,6 +31,7 @@ describe('Constructor tests', () => {
   
     // Проверяем что начинка появилась (текст "Выберите начинку" исчез)
     cy.get('[data-testid="constructor-zone"]').should('not.contain', 'Выберите начинку');
+    cy.get('[data-testid="constructor-zone"]').should('contain', 'Биокотлета из марсианской Магнолии');
   });
 
   // тесты для модалки ингредиента
@@ -57,27 +61,12 @@ describe('Constructor tests', () => {
     cy.get('[data-testid="modal"]').should('exist');
     
     // Закрываем через навигацию назад (как работает кнопка)
-    cy.go('back');
+    cy.go('back')
     
     // Проверяем что модалка закрылась
     cy.get('[data-testid="modal"]').should('not.exist');
   });
   
-  it('closes ingredient modal on overlay click', () => {
-    // Открываем модалку
-    cy.get('[data-testid="ingredient-item"] a').first().click({ force: true });
-    
-    // Проверяем что URL изменился
-    cy.url().should('include', '/ingredients/');
-    
-    // Кликаем на оверлей
-    cy.get('[data-testid="modal-overlay"]').click({ force: true });
-    
-    // Проверяем что модалка закрылась
-    cy.get('[data-testid="modal"]').should('not.exist');
-  });
-
-  // тесты для закрытия модалки ингредиента на оверлей
   it('closes ingredient modal on overlay click', () => {
     // Открываем модалку
     cy.get('[data-testid="ingredient-item"] a').first().click({ force: true });
@@ -146,6 +135,12 @@ describe('Constructor tests', () => {
     // Проверяем что конструктор пуст
     cy.get('[data-testid="constructor-zone"]').should('contain', 'Выберите булки');
     cy.get('[data-testid="constructor-zone"]').should('contain', 'Выберите начинку');
+
+    // Очищаем хранилище после теста
+    cy.window().then((win) => {
+      win.localStorage.clear();
+      win.document.cookie = 'accessToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    });
   });
 
 });
