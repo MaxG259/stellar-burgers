@@ -85,7 +85,6 @@ const checkUserAuth = createAsyncThunk('user/checkUserAuth', async () => {
     throw new Error('No tokens');
   }
 
-  // Проверяем токен через API
   const data = await getUserApi();
   return data.user;
 });
@@ -153,16 +152,15 @@ const userSlice = createSlice({
         state.isAuthenticated = true;
         state.user = action.payload;
         state.isLoading = false;
-        state.isAuthChecked = true; // новое
+        state.isAuthChecked = true;
       })
       .addCase(checkUserAuth.rejected, (state) => {
-        // Токены невалидны - очищаем
         localStorage.removeItem('refreshToken');
         deleteCookie('accessToken');
         state.isAuthenticated = false;
         state.user = null;
         state.isLoading = false;
-        state.isAuthChecked = true; // новое
+        state.isAuthChecked = true;
       });
   }
 });
