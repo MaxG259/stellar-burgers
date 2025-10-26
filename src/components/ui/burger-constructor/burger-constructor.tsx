@@ -18,7 +18,8 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
   onOrderClick,
   closeOrderModal
 }) => (
-  <section className={styles.burger_constructor}>
+  // добавил data-testid='constructor-zone' для тестирования
+  <section className={styles.burger_constructor} data-testid='constructor-zone'>
     {constructorItems.bun ? (
       <div className={`${styles.element} mb-4 mr-4`}>
         <ConstructorElement
